@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+.vs/
+*.user
+publish/
+
+# Local build drops. build.cmd publishes into publish/; build/ is just where a
+# finished exe gets parked for testing. Neither belongs in the repository.
+build/
+
+# Working files that are not part of the project
+_sync/
+_to_delete/
+*.zip
+
+# Internal session notes. Kept locally and in the TGH project docs, not published:
+# it names a specific machine and is written for whoever picks the work up next,
+# rather than for contributors. The warnings contributors need are in CONTRIBUTING.md.
+HANDOFF.md

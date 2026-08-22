@@ -1,0 +1,45 @@
+# Builds AppGeek on every push and pull request.
+#
+# Together with release.yml this is what makes a published binary a verifiable,
+# automated build of the source in this repository, rather than something a
+# maintainer compiled on their own machine and uploaded.
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore AppGeek.sln
+
+      - name: Build
+        run: dotnet build AppGeek.sln --configuration Release --no-restore
+
+      # Warnings are treated as something to look at, not something to ignore.
+      - name: Fail on warnings
+        run: dotnet build AppGeek.sln --configuration Release --no-restore -warnaserror
+
+      # The harness exits non-zero on any failure, which fails the job.
+      # It covers the install-scope policy, the winget table parser and the package
+      # matcher — the three places where a wrong answer damages someone's machine.
+      - name: Test
+        run: dotnet run --project tests/AppGeek.Tests --configuration Release --no-build

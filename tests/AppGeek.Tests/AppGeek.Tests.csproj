@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!--
+      net8.0, not net8.0-windows, and no reference to the app project.
+
+      AppGeek is a WPF executable, so a test project that referenced it could only ever run
+      on Windows. The parts worth testing — the winget table parser, the package matcher, the
+      install-scope policy — have no Windows dependency at all, so the source files are linked
+      in below and the tests run anywhere, including a developer's Linux box and any CI agent.
+
+      The rule for adding a file here: if it needs the registry, WPF or a winget binary, it
+      does not belong in this list. Extract the pure decision out of it first — that is exactly
+      how InstallScopePolicy came to exist.
+    -->
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>AppGeek.Tests</RootNamespace>
+    <AssemblyName>AppGeek.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\AppGeek\Models\InstalledApp.cs"     Link="Linked\InstalledApp.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\AppPaths.cs"       Link="Linked\AppPaths.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\IconFactory.cs"    Link="Linked\IconFactory.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\InstallScopePolicy.cs" Link="Linked\InstallScopePolicy.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\Log.cs"            Link="Linked\Log.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\PackageMatcher.cs" Link="Linked\PackageMatcher.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\ScanProgress.cs"   Link="Linked\ScanProgress.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\SecurityRelevance.cs" Link="Linked\SecurityRelevance.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\VersionCompare.cs" Link="Linked\VersionCompare.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\WingetText.cs"     Link="Linked\WingetText.cs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,81 @@
+# Produces the published binaries and attaches them to a GitHub release.
+#
+# Triggered by pushing a version tag, e.g.:
+#     git tag v1.0.0 && git push origin v1.0.0
+#
+# Two builds are published:
+#   AppGeek.exe        self-contained, no prerequisites          (~63 MB)
+#   AppGeek-light.exe  needs the .NET 8 Desktop Runtime          (~0.5 MB)
+#
+# SHA-256 hashes are published alongside them so a download can be verified.
+# The binaries are not code signed. Windows SmartScreen will warn on first run;
+# verifying the published hash is the way to check what you downloaded.
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish self-contained build
+        run: >
+          dotnet publish src/AppGeek/AppGeek.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          --output publish/standalone
+
+      - name: Publish framework-dependent build
+        run: >
+          dotnet publish src/AppGeek/AppGeek.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained false
+          -p:PublishSingleFile=true
+          --output publish/light
+
+      - name: Collect artefacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item publish/standalone/AppGeek.exe dist/AppGeek.exe
+          Copy-Item publish/light/AppGeek.exe      dist/AppGeek-light.exe
+
+          # Publish hashes so anyone can verify what they downloaded.
+          Get-ChildItem dist/*.exe | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)" | Out-File -FilePath dist/SHA256SUMS.txt -Append -Encoding utf8
+            Write-Host "$hash  $($_.Name)"
+          }
+
+      - name: Upload build artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: appgeek-${{ github.ref_name }}
+          path: dist/*
+
+      - name: Attach to the GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

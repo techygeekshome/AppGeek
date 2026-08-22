@@ -1,0 +1,172 @@
+<UserControl x:Class="AppGeek.Views.InstalledView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource Navy}">
+
+    <UserControl.Resources>
+        <!-- Shared column widths so the header lines up with the rows -->
+        <GridLength x:Key="ColVersion">150</GridLength>
+        <GridLength x:Key="ColPublisher">170</GridLength>
+        <GridLength x:Key="ColSize">80</GridLength>
+        <GridLength x:Key="ColDate">100</GridLength>
+        <GridLength x:Key="ColSource">90</GridLength>
+    </UserControl.Resources>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" BorderBrush="#FF161D2C" BorderThickness="0,0,0,1" Padding="26,20,26,15">
+            <Grid>
+                <StackPanel>
+                    <TextBlock Text="Installed apps" Style="{StaticResource PageTitle}" />
+                    <TextBlock Text="{Binding HeaderSummary}" Style="{StaticResource PageSubtitle}" />
+                </StackPanel>
+                <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource Muted}">
+                    <Run Text="{Binding TotalCount, Mode=OneWay}" />
+                    <Run Text=" apps · " />
+                    <Run Text="{Binding TotalSizeDisplay, Mode=OneWay}" />
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <!-- Footer -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource Chrome}"
+                BorderBrush="#FF161D2C" BorderThickness="0,1,0,0" Padding="26,12">
+            <Grid>
+                <TextBlock Foreground="{StaticResource Txt3}" FontSize="12.5" VerticalAlignment="Center"
+                           Text="Right-click any app for pin, ignore, open folder and uninstall" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Export to CSV" Command="{Binding ExportCsvCommand}" Margin="0,0,9,0" />
+                    <Button Content="Export report" Command="{Binding ExportHtmlCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Body -->
+        <DockPanel Margin="26,16,26,16" LastChildFill="True">
+
+            <StackPanel DockPanel.Dock="Top">
+                <TextBox Tag="Search installed apps…" Margin="0,0,0,12"
+                         Text="{Binding Search, UpdateSourceTrigger=PropertyChanged, Delay=200}" />
+
+                <WrapPanel Margin="0,0,0,12">
+                    <RadioButton Style="{StaticResource ChipButton}" GroupName="InsFilter" IsChecked="True"
+                                 Command="{Binding SetFilterCommand}" CommandParameter="all">
+                        <TextBlock><Run Text="All (" /><Run Text="{Binding TotalCount, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource ChipButton}" GroupName="InsFilter"
+                                 Command="{Binding SetFilterCommand}" CommandParameter="outdated">
+                        <TextBlock><Run Text="Out of date (" /><Run Text="{Binding OutOfDateCount, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource ChipButton}" GroupName="InsFilter"
+                                 Command="{Binding SetFilterCommand}" CommandParameter="uptodate">
+                        <TextBlock Text="Up to date" />
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource ChipButton}" GroupName="InsFilter"
+                                 Command="{Binding SetFilterCommand}" CommandParameter="untracked">
+                        <TextBlock><Run Text="Not tracked (" /><Run Text="{Binding UntrackedCount, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource ChipButton}" GroupName="InsFilter"
+                                 Command="{Binding SetFilterCommand}" CommandParameter="store">
+                        <TextBlock><Run Text="Store apps (" /><Run Text="{Binding StoreCount, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                    </RadioButton>
+                </WrapPanel>
+            </StackPanel>
+
+            <Border Style="{StaticResource Card}" Margin="0">
+                <DockPanel>
+
+                    <!-- Column headings -->
+                    <Border DockPanel.Dock="Top" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1"
+                            Padding="17,11">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{StaticResource ColVersion}" />
+                                <ColumnDefinition Width="{StaticResource ColPublisher}" />
+                                <ColumnDefinition Width="{StaticResource ColSize}" />
+                                <ColumnDefinition Width="{StaticResource ColDate}" />
+                                <ColumnDefinition Width="{StaticResource ColSource}" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="APPLICATION" Style="{StaticResource SectionLabel}" />
+                            <TextBlock Grid.Column="1" Text="VERSION" Style="{StaticResource SectionLabel}" />
+                            <TextBlock Grid.Column="2" Text="PUBLISHER" Style="{StaticResource SectionLabel}" />
+                            <TextBlock Grid.Column="3" Text="SIZE" Style="{StaticResource SectionLabel}" />
+                            <TextBlock Grid.Column="4" Text="INSTALLED" Style="{StaticResource SectionLabel}" />
+                            <TextBlock Grid.Column="5" Text="SOURCE" Style="{StaticResource SectionLabel}" />
+                        </Grid>
+                    </Border>
+
+                    <ListBox Style="{StaticResource PlainListBox}" ItemsSource="{Binding View}"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource RowBorder}" Padding="17,8">
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Open install folder"
+                                                      Command="{Binding DataContext.OpenFolderCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem Header="Hide this app from scans and reports"
+                                                      Command="{Binding DataContext.IgnoreCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}" />
+                                            <Separator />
+                                            <MenuItem Header="Uninstall…"
+                                                      Command="{Binding DataContext.UninstallCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}" />
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="{StaticResource ColVersion}" />
+                                            <ColumnDefinition Width="{StaticResource ColPublisher}" />
+                                            <ColumnDefinition Width="{StaticResource ColSize}" />
+                                            <ColumnDefinition Width="{StaticResource ColDate}" />
+                                            <ColumnDefinition Width="{StaticResource ColSource}" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,10,0">
+                                            <Border Width="24" Height="24" CornerRadius="6" VerticalAlignment="Center"
+                                                    Background="{Binding IconColour, Converter={StaticResource HexToBrush}}">
+                                                <TextBlock Text="{Binding IconText}" Foreground="White"
+                                                           FontSize="10" FontWeight="Bold"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            </Border>
+                                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="12.5"
+                                                       VerticalAlignment="Center" Margin="9,0,0,0"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding DisplayVersion}"
+                                                   Foreground="{StaticResource Txt2}" FontSize="12.5"
+                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Publisher}"
+                                                   Foreground="{StaticResource Txt2}" FontSize="12.5"
+                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                   Margin="0,0,10,0" />
+                                        <TextBlock Grid.Column="3" Text="{Binding SizeDisplay}"
+                                                   Foreground="{StaticResource Txt2}" FontSize="12.5"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="4" Text="{Binding InstallDate, StringFormat=dd MMM yyyy}"
+                                                   Foreground="{StaticResource Txt2}" FontSize="12.5"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="5" Text="{Binding SourceName}"
+                                                   Foreground="{StaticResource Txt3}" FontSize="12.5"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </DockPanel>
+    </DockPanel>
+</UserControl>

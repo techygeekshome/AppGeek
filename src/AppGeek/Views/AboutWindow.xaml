@@ -1,0 +1,152 @@
+<Window x:Class="AppGeek.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About AppGeek"
+        Width="530" Height="770"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Icon="/Assets/appgeek.png"
+        Background="{StaticResource Navy}"
+        TextOptions.TextFormattingMode="Ideal"
+        UseLayoutRounding="True">
+
+    <Window.Resources>
+        <!-- Link button used in the 2x2 grid -->
+        <Style x:Key="AboutLink" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+            <Setter Property="Background" Value="#FF1B2333" />
+            <Setter Property="BorderBrush" Value="#FF2A3549" />
+            <Setter Property="Padding" Value="14,11" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0,0,0,0" />
+        </Style>
+
+        <Style x:Key="CreditLink" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF38BDF8" />
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24,22,24,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============ Header ============ -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Image Grid.Column="0" Source="/Assets/appgeek.png" Width="72" Height="72"
+                   VerticalAlignment="Top" RenderOptions.BitmapScalingMode="HighQuality" />
+
+            <StackPanel Grid.Column="1" Margin="18,4,0,0">
+                <TextBlock Text="AppGeek" FontSize="26" FontWeight="Bold" />
+                <TextBlock x:Name="TaglineText" Text="Free app updater and installer for Windows"
+                           Foreground="#FF38BDF8" FontSize="13.5" Margin="0,4,0,0"
+                           TextWrapping="Wrap" />
+                <TextBlock x:Name="VersionText" Foreground="{StaticResource Txt3}"
+                           FontSize="12" Margin="0,7,0,0" />
+            </StackPanel>
+        </Grid>
+
+        <!-- ============ Body ============ -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <!-- What it is -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                    <StackPanel Margin="17,15">
+                        <TextBlock x:Name="DescriptionText" Foreground="{StaticResource Txt2}"
+                                   FontSize="12.5" TextWrapping="Wrap" LineHeight="19" />
+                        <TextBlock x:Name="LicenceText" Foreground="{StaticResource Txt2}"
+                                   FontSize="12.5" TextWrapping="Wrap" LineHeight="19"
+                                   Margin="0,12,0,0" />
+
+                        <!-- The GPL asks a graphical program to show this somewhere visible. -->
+                        <Border Background="#FF0E1421" BorderBrush="{StaticResource Line}"
+                                BorderThickness="1" CornerRadius="7" Padding="12,10" Margin="0,13,0,0">
+                            <StackPanel>
+                                <TextBlock x:Name="LicenceNoticeText" Foreground="{StaticResource Txt3}"
+                                           FontSize="11.5" TextWrapping="Wrap" LineHeight="17" />
+                                <TextBlock x:Name="LicenceLinkText" Style="{StaticResource CreditLink}"
+                                           Margin="0,7,0,0" MouseLeftButtonUp="Credit_Click" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Links -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                    <StackPanel Margin="15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Button x:Name="WebsiteButton" Grid.Row="0" Grid.Column="0"
+                                    Style="{StaticResource AboutLink}" Content="Website"
+                                    Margin="0,0,5,10" />
+                            <Button x:Name="ProductButton" Grid.Row="0" Grid.Column="1"
+                                    Style="{StaticResource AboutLink}" Content="Product page"
+                                    Margin="5,0,0,10" />
+                            <Button x:Name="SourceButton" Grid.Row="1" Grid.Column="0"
+                                    Style="{StaticResource AboutLink}" Content="Source on GitHub"
+                                    Margin="0,0,5,0" />
+                            <Button x:Name="IssuesButton" Grid.Row="1" Grid.Column="1"
+                                    Style="{StaticResource AboutLink}" Content="Report a problem"
+                                    Margin="5,0,0,0" />
+                        </Grid>
+
+                        <Button x:Name="DonateButton" Content="Support us on Ko-fi"
+                                Foreground="White" FontWeight="SemiBold" FontSize="13.5"
+                                Background="#FFE0554E" BorderBrush="#FFE0554E"
+                                Padding="14,12" Margin="0,10,0,0"
+                                HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Credits -->
+                <TextBlock Text="Built with" FontWeight="Bold" FontSize="12.5" Margin="2,0,0,8" />
+                <ItemsControl x:Name="CreditsList" Margin="2,0,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Style="{StaticResource CreditLink}"
+                                       Tag="{Binding Url}"
+                                       MouseLeftButtonUp="Credit_Click">
+                                <Run Text="{Binding Name, Mode=OneWay}" />
+                                <Run Text=" — " />
+                                <Run Text="{Binding Licence, Mode=OneWay}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ============ Footer ============ -->
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center"
+                       Foreground="{StaticResource Txt3}" FontSize="12"
+                       TextWrapping="Wrap" MaxWidth="270" HorizontalAlignment="Left" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="CheckUpdatesButton" Content="Check for updates" Margin="0,0,9,0" />
+                <Button x:Name="CloseButton" Content="Close" Style="{StaticResource PrimaryButton}"
+                        MinWidth="86" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
