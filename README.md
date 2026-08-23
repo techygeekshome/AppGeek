@@ -12,7 +12,7 @@
 [![Made by TechyGeeksHome](https://img.shields.io/badge/made%20by-TechyGeeksHome-b191f2)](https://techygeekshome.info)
 [![Support on Ko-fi](https://img.shields.io/badge/support-Ko--fi-ff5e5b)](https://ko-fi.com/techygeekshome)
 
-[Download](#%EF%B8%8F-download--run) · [Features](#-what-it-does) · [Safety](#-what-it-will-not-do-to-your-machine) · [Build from source](#-build-from-source) · [License](#-license)
+[Download](#%EF%B8%8F-download--run) · [Screenshots](#-screenshots) · [Features](#-what-it-does) · [Safety](#-what-it-will-not-do-to-your-machine) · [Build from source](#-build-from-source) · [License](#-license)
 
 </div>
 
@@ -34,6 +34,21 @@ No bundled offers, no telemetry, no account, no Pro tier. It is free for everyon
 Nothing to install — download and run it.
 
 > **Windows will warn you the first time.** AppGeek isn't code signed, because a certificate is a recurring cost we'd rather not put behind a free tool. Click **More info → Run anyway**. Every release publishes SHA-256 checksums so you can verify what you downloaded, and the source is right here so you can see exactly what it does.
+
+## 📸 Screenshots
+
+<p float="left">
+<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-dashboard.png" width="49%" alt="AppGeek dashboard showing update counts" />
+<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-updates.png" width="49%" alt="The updates list with a security update flagged" />
+</p>
+<p float="left">
+<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-catalogue.png" width="49%" alt="The catalogue of applications, sorted by category" />
+<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-installed.png" width="49%" alt="Every application found on the PC" />
+</p>
+<p float="left">
+<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-settings.png" width="49%" alt="Settings: scanning, sources and install behaviour" />
+<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-about.png" width="49%" alt="The About dialog" />
+</p>
 
 ## ✨ What it does
 
