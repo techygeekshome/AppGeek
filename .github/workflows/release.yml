@@ -3,9 +3,10 @@
 # Triggered by pushing a version tag, e.g.:
 #     git tag v1.0.0 && git push origin v1.0.0
 #
-# Two builds are published:
-#   AppGeek.exe        self-contained, no prerequisites          (~63 MB)
-#   AppGeek-light.exe  needs the .NET 8 Desktop Runtime          (~0.5 MB)
+# Three downloads are published:
+#   AppGeekSetup.exe   installer, self-contained, Start menu + uninstall entry
+#   AppGeek.exe        portable, self-contained, no prerequisites  (~63 MB)
+#   AppGeek-light.exe  portable, needs the .NET 8 Desktop Runtime  (~0.5 MB)
 #
 # SHA-256 hashes are published alongside them so a download can be verified.
 # The binaries are not code signed. Windows SmartScreen will warn on first run;
@@ -53,12 +54,25 @@ jobs:
           -p:PublishSingleFile=true
           --output publish/light
 
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) {
+            Write-Host 'Inno Setup not on the runner image - installing it.'
+            choco install innosetup --no-progress -y
+          }
+          if (-not (Test-Path $iscc)) { throw "ISCC.exe not found at $iscc" }
+          & $iscc 'installer\AppGeek.iss'
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
+
       - name: Collect artefacts
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Copy-Item publish/standalone/AppGeek.exe dist/AppGeek.exe
           Copy-Item publish/light/AppGeek.exe      dist/AppGeek-light.exe
+          if (-not (Test-Path dist/AppGeekSetup.exe)) { throw 'AppGeekSetup.exe was not produced.' }
 
           # Publish hashes so anyone can verify what they downloaded.
           Get-ChildItem dist/*.exe | ForEach-Object {

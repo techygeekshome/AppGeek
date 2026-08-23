@@ -29,6 +29,7 @@
     <Compile Include="..\..\src\AppGeek\Services\InstallScopePolicy.cs" Link="Linked\InstallScopePolicy.cs" />
     <Compile Include="..\..\src\AppGeek\Services\Log.cs"            Link="Linked\Log.cs" />
     <Compile Include="..\..\src\AppGeek\Services\PackageMatcher.cs" Link="Linked\PackageMatcher.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\RegistryText.cs"    Link="Linked\RegistryText.cs" />
     <Compile Include="..\..\src\AppGeek\Services\ScanProgress.cs"   Link="Linked\ScanProgress.cs" />
     <Compile Include="..\..\src\AppGeek\Services\SecurityRelevance.cs" Link="Linked\SecurityRelevance.cs" />
     <Compile Include="..\..\src\AppGeek\Services\VersionCompare.cs" Link="Linked\VersionCompare.cs" />

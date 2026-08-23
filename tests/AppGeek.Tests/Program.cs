@@ -12,5 +12,6 @@ ParserTests.Run();
 VersionTests.Run();
 ProgressTests.Run();
 SecurityTests.Run();
+RegistryTextTests.Run();
 
 return Check.Report();

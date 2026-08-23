@@ -29,6 +29,9 @@ public sealed class InstalledApp
 
     public string SizeDisplay => Format.Bytes(EstimatedSizeBytes);
 
+    /// <summary>Source for display. An app winget does not track has no source, not "winget".</summary>
+    public string SourceDisplay => string.IsNullOrWhiteSpace(SourceName) ? "—" : SourceName!;
+
     /// <summary>Monogram and colour for the list tile, derived so every app looks deliberate.</summary>
     public string IconText => Services.IconFactory.Monogram(DisplayName);
     public string IconColour => Services.IconFactory.Colour(PackageId ?? DisplayName);

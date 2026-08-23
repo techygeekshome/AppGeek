@@ -111,12 +111,12 @@ public sealed class RegistryInventoryService
         return new InstalledApp
         {
             DisplayName = name!.Trim(),
-            DisplayVersion = (key.GetValue("DisplayVersion") as string)?.Trim(),
-            Publisher = (key.GetValue("Publisher") as string)?.Trim(),
+            DisplayVersion = RegistryText.Clean(key.GetValue("DisplayVersion") as string),
+            Publisher = RegistryText.Clean(key.GetValue("Publisher") as string),
             InstallDate = ParseInstallDate(key.GetValue("InstallDate") as string),
             // EstimatedSize is stored in KB.
             EstimatedSizeBytes = ToInt(key.GetValue("EstimatedSize")) * 1024L,
-            InstallLocation = (key.GetValue("InstallLocation") as string)?.Trim(),
+            InstallLocation = RegistryText.Clean(key.GetValue("InstallLocation") as string),
             UninstallString = uninstallString,
             QuietUninstallString = quiet,
             RegistryKey = $"{hive}\\{UninstallPath}\\{subName} ({view})",
@@ -139,4 +139,5 @@ public sealed class RegistryInventoryService
                 DateTimeStyles.None, out var d)) return d;
         return DateTime.TryParse(raw, CultureInfo.CurrentCulture, DateTimeStyles.None, out var d2) ? d2 : null;
     }
+
 }

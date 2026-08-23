@@ -61,8 +61,12 @@ public static class PackageMatcher
             }
 
             app.PackageId = id;
+
+            // Only record a source winget actually named. Defaulting to "winget" made every
+            // matched app claim a source it might not have, which is misleading in the
+            // installed list and in an exported inventory.
             var src = row.Get(WingetColumn.Source);
-            app.SourceName = string.IsNullOrWhiteSpace(src) ? "winget" : src;
+            app.SourceName = string.IsNullOrWhiteSpace(src) ? null : src;
             matched++;
         }
 

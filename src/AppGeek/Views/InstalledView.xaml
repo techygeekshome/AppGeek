@@ -157,7 +157,7 @@
                                         <TextBlock Grid.Column="4" Text="{Binding InstallDate, StringFormat=dd MMM yyyy}"
                                                    Foreground="{StaticResource Txt2}" FontSize="12.5"
                                                    VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="5" Text="{Binding SourceName}"
+                                        <TextBlock Grid.Column="5" Text="{Binding SourceDisplay}"
                                                    Foreground="{StaticResource Txt3}" FontSize="12.5"
                                                    VerticalAlignment="Center" />
                                     </Grid>

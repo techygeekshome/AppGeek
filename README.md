@@ -12,7 +12,7 @@
 [![Made by TechyGeeksHome](https://img.shields.io/badge/made%20by-TechyGeeksHome-b191f2)](https://techygeekshome.info)
 [![Support on Ko-fi](https://img.shields.io/badge/support-Ko--fi-ff5e5b)](https://ko-fi.com/techygeekshome)
 
-[Download](#%EF%B8%8F-download--run) · [Screenshots](#-screenshots) · [Features](#-what-it-does) · [Safety](#-what-it-will-not-do-to-your-machine) · [Build from source](#-build-from-source) · [License](#-license)
+[Download](#%EF%B8%8F-download--run) · [Features](#-what-it-does) · [Safety](#-what-it-will-not-do-to-your-machine) · [Build from source](#-build-from-source) · [License](#-license)
 
 </div>
 
@@ -28,27 +28,13 @@ No bundled offers, no telemetry, no account, no Pro tier. It is free for everyon
 
 | What it is | Get it |
 | --- | --- |
-| **Standalone** *(recommended)* — one `.exe`, no prerequisites, works on a fresh machine | [**AppGeek.exe**](https://github.com/techygeekshome/AppGeek/releases/latest) |
-| **Light** — needs the .NET 8 Desktop Runtime already installed | [**AppGeek-light.exe**](https://github.com/techygeekshome/AppGeek/releases/latest) |
+| **Installer** *(recommended)* — Start menu entry, desktop shortcut, proper uninstall | [**AppGeekSetup.exe**](https://github.com/techygeekshome/AppGeek/releases/latest) |
+| **Portable** — one `.exe`, no prerequisites, nothing written outside its own folder | [**AppGeek.exe**](https://github.com/techygeekshome/AppGeek/releases/latest) |
+| **Portable, light** — needs the .NET 8 Desktop Runtime already installed | [**AppGeek-light.exe**](https://github.com/techygeekshome/AppGeek/releases/latest) |
 
-Nothing to install — download and run it.
+The installer puts AppGeek in Program Files and registers an uninstall entry like any other application. The portable builds install nothing — download and run.
 
 > **Windows will warn you the first time.** AppGeek isn't code signed, because a certificate is a recurring cost we'd rather not put behind a free tool. Click **More info → Run anyway**. Every release publishes SHA-256 checksums so you can verify what you downloaded, and the source is right here so you can see exactly what it does.
-
-## 📸 Screenshots
-
-<p float="left">
-<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-dashboard.png" width="49%" alt="AppGeek dashboard showing update counts" />
-<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-updates.png" width="49%" alt="The updates list with a security update flagged" />
-</p>
-<p float="left">
-<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-catalogue.png" width="49%" alt="The catalogue of applications, sorted by category" />
-<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-installed.png" width="49%" alt="Every application found on the PC" />
-</p>
-<p float="left">
-<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-settings.png" width="49%" alt="Settings: scanning, sources and install behaviour" />
-<img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-about.png" width="49%" alt="The About dialog" />
-</p>
 
 ## ✨ What it does
 
@@ -94,12 +80,15 @@ Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
 dotnet build AppGeek.sln -c Release
 ```
 
-To produce the two shipping builds:
+To produce the shipping builds:
 
 ```powershell
 build.cmd            # standalone, no prerequisites
 build.cmd light      # framework-dependent, needs the .NET 8 Desktop Runtime
+build.cmd installer  # standalone build, then dist\AppGeekSetup.exe
 ```
+
+The installer step needs [Inno Setup 6](https://jrsoftware.org/isdl.php) (free); the script itself is `installer/AppGeek.iss`.
 
 To run the test suite:
 
@@ -107,7 +96,7 @@ To run the test suite:
 dotnet run --project tests/AppGeek.Tests -c Release
 ```
 
-Releases are built by GitHub Actions rather than on a developer's machine — push a tag (`git tag v1.0.0 && git push origin v1.0.0`) and `release.yml` publishes both builds plus `SHA256SUMS.txt`. That matters beyond tidiness: it means the binary you download provably comes from the source in this repository.
+Releases are built by GitHub Actions rather than on a developer's machine — push a tag (`git tag v1.0.0 && git push origin v1.0.0`) and `release.yml` publishes the installer, both portable builds and `SHA256SUMS.txt`. That matters beyond tidiness: it means the binary you download provably comes from the source in this repository.
 
 The project sets `EnableWindowsTargeting`, so it also builds on Linux and macOS CI agents — it just cannot be run there.
 
