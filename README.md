@@ -6,7 +6,7 @@
 
 **Update everything on your PC in one run, and install new software from a curated list — free, open source, and built on winget.**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-4c9bff)](https://github.com/techygeekshome/AppGeek/releases)
+[![Version](https://img.shields.io/github/v/release/techygeekshome/AppGeek?label=version&color=4c9bff)](https://github.com/techygeekshome/AppGeek/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d4)](#%EF%B8%8F-download--run)
 [![License](https://img.shields.io/badge/license-GPL--3.0-3fb950)](LICENSE)
 [![Made by TechyGeeksHome](https://img.shields.io/badge/made%20by-TechyGeeksHome-b191f2)](https://techygeekshome.info)
