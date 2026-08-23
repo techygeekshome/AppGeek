@@ -397,7 +397,7 @@
       "name": "Paint.NET",
       "publisher": "dotPDN LLC",
       "category": "Media",
-      "wingetId": "dotPDNLLC.paintdotnet",
+      "wingetId": "dotPDN.PaintDotNet",
       "storeId": null,
       "iconText": "PN",
       "iconColour": "#2E78D8",
@@ -603,21 +603,6 @@
       "essential": false
     },
     {
-      "id": "whatsapp",
-      "name": "WhatsApp",
-      "publisher": "WhatsApp LLC",
-      "category": "Communication",
-      "wingetId": "WhatsApp.WhatsApp",
-      "storeId": null,
-      "iconText": "WA",
-      "iconColour": "#4C8B3F",
-      "approxSizeMb": 120,
-      "description": "Desktop client for WhatsApp.",
-      "homepage": "https://whatsapp.com",
-      "popularity": 68,
-      "essential": false
-    },
-    {
       "id": "vscode",
       "name": "Visual Studio Code",
       "publisher": "Microsoft",
@@ -765,21 +750,6 @@
       "description": "SSH and telnet client.",
       "homepage": "https://putty.org",
       "popularity": 60,
-      "essential": false
-    },
-    {
-      "id": "filezilla",
-      "name": "FileZilla",
-      "publisher": "Tim Kosse",
-      "category": "Developer",
-      "wingetId": "TimKosse.FileZilla.Client",
-      "storeId": null,
-      "iconText": "FZ",
-      "iconColour": "#D9534F",
-      "approxSizeMb": 14,
-      "description": "FTP client.",
-      "homepage": "https://filezilla-project.org",
-      "popularity": 54,
       "essential": false
     },
     {
@@ -937,7 +907,7 @@
       "name": "AnyDesk",
       "publisher": "AnyDesk Software",
       "category": "Remote access",
-      "wingetId": "AnyDeskSoftwareGmbH.AnyDesk",
+      "wingetId": "AnyDesk.AnyDesk",
       "storeId": null,
       "iconText": "AD",
       "iconColour": "#D9534F",
@@ -945,21 +915,6 @@
       "description": "Lightweight remote desktop.",
       "homepage": "https://anydesk.com",
       "popularity": 60,
-      "essential": false
-    },
-    {
-      "id": "rustdesk",
-      "name": "RustDesk",
-      "publisher": "RustDesk",
-      "category": "Remote access",
-      "wingetId": "RustDesk.RustDesk",
-      "storeId": null,
-      "iconText": "RD",
-      "iconColour": "#2E78D8",
-      "approxSizeMb": 34,
-      "description": "Open-source remote desktop, self-hostable.",
-      "homepage": "https://rustdesk.com",
-      "popularity": 42,
       "essential": false
     },
     {
