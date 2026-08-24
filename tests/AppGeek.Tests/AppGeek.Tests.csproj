@@ -34,6 +34,7 @@
     <Compile Include="..\..\src\AppGeek\Services\SecurityRelevance.cs" Link="Linked\SecurityRelevance.cs" />
     <Compile Include="..\..\src\AppGeek\Services\VersionCompare.cs" Link="Linked\VersionCompare.cs" />
     <Compile Include="..\..\src\AppGeek\Services\WingetText.cs"     Link="Linked\WingetText.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\WingetVersion.cs"  Link="Linked\WingetVersion.cs" />
   </ItemGroup>
 
 </Project>

@@ -10,6 +10,7 @@ ScopeTests.Run();
 MatcherTests.Run();
 ParserTests.Run();
 VersionTests.Run();
+WingetVersionTests.Run();
 ProgressTests.Run();
 SecurityTests.Run();
 RegistryTextTests.Run();
