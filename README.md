@@ -48,6 +48,12 @@ The installer puts AppGeek in Program Files and registers an uninstall entry lik
 - 📄 **Exports a full report** of everything installed as CSV or HTML — handy for an audit or a rebuild.
 - 🔒 **Private.** No telemetry, no account, no data leaves your machine.
 
+### On the one network call
+
+AppGeek itself makes exactly one network request, and only when you click **Check for updates**. It asks GitHub's public releases API whether a newer tag exists. The request carries a user agent naming AppGeek, its version and this site, because GitHub rejects requests without one — and nothing else. No machine identifier, no list of your installed software, no usage data. It never downloads or installs anything on its own: if there is a newer version it offers to open the release page, and that is all. Don't press it and AppGeek makes no request of its own at all, including at startup.
+
+It is worth being precise about the part that is *not* AppGeek's: scanning for updates and installing anything runs **winget**, and winget talks to Microsoft's package sources to do its job. That traffic is the Windows Package Manager's, under Microsoft's terms, and it happens whether you drive winget from AppGeek or from a command prompt. AppGeek does not add anything to it.
+
 ## 🛡️ What it will not do to your machine
 
 An app that runs installers with administrator rights has to be careful in ways an ordinary utility does not. These are deliberate design decisions, not incidental behaviour:
