@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace AppGeek.Services;
 
@@ -28,13 +27,13 @@ public sealed record WingetCheck(WingetStatus Status, Version? Version, string H
 ///
 /// Rather than failing with a cryptic error, AppGeek detects this and offers to fix it.
 /// </summary>
-public sealed partial class WingetBootstrapper
+public sealed class WingetBootstrapper
 {
     /// <summary>
     /// 1.4 is the floor: that is the release that added --disable-interactivity, which
     /// AppGeek passes on every call to stop winget prompting inside a redirected console.
     /// </summary>
-    public static readonly Version MinimumVersion = new(1, 4);
+    public static Version MinimumVersion => WingetVersion.Minimum;
 
     private const string PackageFamilyName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe";
     private const string StoreProtocolUrl = "ms-windows-store://pdp/?ProductId=9NBLGGH4NNS1";
@@ -42,9 +41,6 @@ public sealed partial class WingetBootstrapper
 
     /// <summary>Microsoft's own short link to the latest App Installer bundle.</summary>
     public const string ManualDownloadUrl = "https://aka.ms/getwinget";
-
-    [GeneratedRegex(@"(\d+)\.(\d+)(?:\.(\d+))?")]
-    private static partial Regex VersionPattern();
 
     private readonly WingetClient _client;
 
@@ -82,25 +78,12 @@ public sealed partial class WingetBootstrapper
             version is null ? "Version could not be read, but winget responded." : $"winget {version}");
     }
 
-    public static Version? ParseVersion(string? raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw)) return null;
-
-        var m = VersionPattern().Match(raw);
-        if (!m.Success) return null;
-
-        try
-        {
-            var major = int.Parse(m.Groups[1].Value);
-            var minor = int.Parse(m.Groups[2].Value);
-            var build = m.Groups[3].Success ? int.Parse(m.Groups[3].Value) : 0;
-            return new Version(major, minor, build);
-        }
-        catch
-        {
-            return null;
-        }
-    }
+    /// <summary>
+    /// Kept as the name the rest of the app already calls. The parsing itself moved to
+    /// <see cref="WingetVersion"/> so it could be linked into the test project, which
+    /// cannot reference this class — this one shells out to PowerShell and winget.
+    /// </summary>
+    public static Version? ParseVersion(string? raw) => WingetVersion.Parse(raw);
 
     /// <summary>
     /// Attempts the cheap, offline fix first: re-registering the App Installer package for
