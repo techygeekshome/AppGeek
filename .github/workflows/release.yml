@@ -34,11 +34,30 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Work out the version to stamp
+        id: ver
+        shell: pwsh
+        run: |
+          # A tag push is the normal path: v1.0.1 -> 1.0.1
+          # A manual run has no tag, so fall back to the version in the csproj.
+          $ref = '${{ github.ref_name }}'
+          if ($ref -match '^v(\d+\.\d+\.\d+(\.\d+)?)$') {
+            $version = $Matches[1]
+          } else {
+            [xml]$proj = Get-Content src/AppGeek/AppGeek.csproj
+            $version = ($proj.Project.PropertyGroup.Version | Where-Object { $_ }) | Select-Object -First 1
+            Write-Host "No version tag on this run - falling back to the csproj version."
+          }
+          if (-not $version) { throw 'Could not determine a version to stamp.' }
+          Write-Host "Stamping version $version"
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
       - name: Publish self-contained build
         run: >
           dotnet publish src/AppGeek/AppGeek.csproj
           --configuration Release
           --runtime win-x64
+          -p:Version=${{ steps.ver.outputs.version }}
           --self-contained true
           -p:PublishSingleFile=true
           -p:IncludeNativeLibrariesForSelfExtract=true
@@ -50,6 +69,7 @@ jobs:
           dotnet publish src/AppGeek/AppGeek.csproj
           --configuration Release
           --runtime win-x64
+          -p:Version=${{ steps.ver.outputs.version }}
           --self-contained false
           -p:PublishSingleFile=true
           --output publish/light
@@ -63,7 +83,7 @@ jobs:
             choco install innosetup --no-progress -y
           }
           if (-not (Test-Path $iscc)) { throw "ISCC.exe not found at $iscc" }
-          & $iscc 'installer\AppGeek.iss'
+          & $iscc "/DAppVersion=${{ steps.ver.outputs.version }}" 'installer\AppGeek.iss'
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
 
       - name: Collect artefacts
@@ -80,6 +100,27 @@ jobs:
             "$hash  $($_.Name)" | Out-File -FilePath dist/SHA256SUMS.txt -Append -Encoding utf8
             Write-Host "$hash  $($_.Name)"
           }
+
+      - name: Check the version was actually stamped
+        shell: pwsh
+        run: |
+          $expected = '${{ steps.ver.outputs.version }}'
+          $bad = @()
+          foreach ($name in 'AppGeek.exe','AppGeek-light.exe','AppGeekSetup.exe') {
+            $path = Join-Path 'dist' $name
+            $info = (Get-Item $path).VersionInfo
+            $file = $info.FileVersion
+            $prod = $info.ProductVersion
+            Write-Host "$name  FileVersion=$file  ProductVersion=$prod"
+            if ($file -notlike "$expected*" -and $prod -notlike "$expected*") {
+              $bad += "$name reports $file / $prod, expected $expected"
+            }
+          }
+          if ($bad.Count) {
+            $bad | ForEach-Object { Write-Host "FAIL: $_" }
+            throw 'The published binaries do not carry the release version. Refusing to publish a mislabelled release.'
+          }
+          Write-Host "OK - all three binaries report $expected"
 
       - name: Upload build artefacts
         uses: actions/upload-artifact@v4
