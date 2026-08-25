@@ -15,7 +15,12 @@
 ;     runtime and offers to fetch it from Microsoft if it is missing.
 
 #define AppName        "AppGeek"
-#define AppVersion     "1.0.0"
+; Overridable from the command line so the Release workflow can stamp the tag version:
+;     iscc /DAppVersion=1.2.3 installer\AppGeek.iss
+; The fallback below is what a plain local build uses - keep it in step with AppGeek.csproj.
+#ifndef AppVersion
+  #define AppVersion   "1.0.1"
+#endif
 #define AppPublisher   "TechyGeeksHome"
 #define AppURL         "https://techygeekshome.info/appgeek/"
 #define AppSupportURL  "https://github.com/techygeekshome/AppGeek/issues"
