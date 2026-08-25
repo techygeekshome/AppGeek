@@ -19,7 +19,7 @@
 ;     iscc /DAppVersion=1.2.3 installer\AppGeek.iss
 ; The fallback below is what a plain local build uses - keep it in step with AppGeek.csproj.
 #ifndef AppVersion
-  #define AppVersion   "1.0.1"
+  #define AppVersion   "1.0.2"
 #endif
 #define AppPublisher   "TechyGeeksHome"
 #define AppURL         "https://techygeekshome.info/appgeek/"
