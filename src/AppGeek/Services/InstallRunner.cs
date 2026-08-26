@@ -7,9 +7,13 @@ using ActivityKind = AppGeek.Models.ActivityKind;
 
 namespace AppGeek.Services;
 
-public sealed record RunSummary(int Succeeded, int Failed, int Skipped, bool Cancelled, TimeSpan Elapsed, string LogPath)
+public sealed record RunSummary(int Succeeded, int Failed, int Skipped, bool Cancelled,
+                               TimeSpan Elapsed, string LogPath, RebootPlan Reboot)
 {
     public int Total => Succeeded + Failed + Skipped;
+
+    /// <summary>Nothing failed, nothing was skipped and the user did not stop it.</summary>
+    public bool WasClean => Failed == 0 && Skipped == 0 && !Cancelled;
 }
 
 /// <summary>
@@ -56,6 +60,7 @@ public sealed class InstallRunner
         var stopwatch = Stopwatch.StartNew();
         int ok = 0, failed = 0, skipped = 0;
         bool cancelled = false;
+        bool rebootRequested = false;
 
         Log.Info($"Run started · {Items.Count} package(s) · elevated as {Elevation.CurrentUserName}");
         Emit($"Run started · {Items.Count} package(s) · elevated as {Elevation.CurrentUserName}");
@@ -81,6 +86,14 @@ public sealed class InstallRunner
                              ? "" : $" at {item.InstallLocation}"));
                 }
 
+                if (!await ClearRunningAppAsync(item, ct).ConfigureAwait(false))
+                {
+                    item.State = RunItemState.Skipped;
+                    skipped++;
+                    ItemChanged?.Invoke(item);
+                    continue;
+                }
+
                 var result = await _winget.ExecuteAsync(
                     item.Action, item.PackageId, item.SourceName, item.Scope,
                     (line, pct) =>
@@ -99,13 +112,17 @@ public sealed class InstallRunner
                 item.Elapsed = itemWatch.Elapsed;
                 item.ExitCode = result.ExitCode;
 
-                if (result.ExitCode == 0)
+                var neededReboot = RebootDecision.IsRebootExitCode(result.ExitCode);
+                if (neededReboot) rebootRequested = true;
+
+                if (result.ExitCode == 0 || neededReboot)
                 {
                     item.State = RunItemState.Succeeded;
                     item.Percent = 100;
                     item.Detail = item.Action == RunAction.Update
                         ? $"Updated {item.FromVersion} → {item.ToVersion} · {Format.Duration(item.Elapsed)}"
                         : $"Installed {item.ToVersion} · {Format.Duration(item.Elapsed)}";
+                    if (neededReboot) item.Detail += " · needs a restart to finish";
                     ok++;
                     Emit($"{item.PackageId}: {item.Detail}");
                     _activity.Add(ActivityKind.Success,
@@ -163,7 +180,11 @@ public sealed class InstallRunner
         }
 
         stopwatch.Stop();
-        var summary = new RunSummary(ok, failed, skipped, cancelled, stopwatch.Elapsed, CurrentLogPath ?? "");
+
+        var reboot = DecideReboot(rebootRequested, clean: failed == 0 && skipped == 0 && !cancelled);
+        var summary = new RunSummary(ok, failed, skipped, cancelled, stopwatch.Elapsed,
+                                     CurrentLogPath ?? "", reboot);
+
         Log.Info($"Run finished · {ok} succeeded, {failed} failed, {skipped} skipped · {Format.Duration(stopwatch.Elapsed)}");
         Emit($"Run finished · {ok} succeeded, {failed} failed, {skipped} skipped");
         Log.EndRunLog();
@@ -174,6 +195,86 @@ public sealed class InstallRunner
 
         Completed?.Invoke(summary);
         return summary;
+    }
+
+    /// <summary>
+    /// Applies the "When an app is running" setting to one item. Returns false when the item
+    /// should be skipped.
+    ///
+    /// This sits in the runner rather than in the Updates screen on purpose, so a catalogue
+    /// install gets the same treatment as an update, and so the check happens immediately
+    /// before the install rather than minutes earlier when the queue was built.
+    /// </summary>
+    private async Task<bool> ClearRunningAppAsync(RunItem item, CancellationToken ct)
+    {
+        var policy = _settings.Current.RunningAppPolicy;
+        if (policy == RunningAppPolicy.Ask) return true;   // already answered on the Updates screen
+
+        var process = RunningProcessDetector.FindRunning(item.PackageId, item.Name);
+        var action = RunningAppGate.Decide(policy, process is not null);
+
+        switch (action)
+        {
+            case RunningAppAction.Skip:
+                item.Detail = $"Skipped — {item.Name} is running ({process})";
+                Log.Info($"{item.PackageId} skipped: {process} is running and the policy is 'Always skip'.");
+                Emit($"{item.PackageId}: skipped — {process} is running");
+                _activity.Add(ActivityKind.Warning, $"{item.Name} skipped — it was open");
+                return false;
+
+            case RunningAppAction.CloseFirst:
+                item.Detail = $"Asking {process} to close…";
+                ItemChanged?.Invoke(item);
+                Emit($"{item.PackageId}: {process} is running — asking it to close");
+
+                var outcome = await RunningAppCloser.TryCloseAsync(process, ct: ct).ConfigureAwait(false);
+                if (outcome == CloseOutcome.StillRunning)
+                {
+                    item.Detail = $"Skipped — {process} would not close";
+                    Log.Warn($"{item.PackageId} skipped: {process} did not close within the grace period.");
+                    Emit($"{item.PackageId}: skipped — {process} did not close");
+                    _activity.Add(ActivityKind.Warning, $"{item.Name} skipped — it would not close");
+                    return false;
+                }
+
+                Emit($"{item.PackageId}: {process} closed");
+                return true;
+
+            default:
+                return true;
+        }
+    }
+
+    /// <summary>
+    /// Works out whether to restart, and acts on it if the user chose Automatic. The prompt
+    /// case is left to the UI — a service has no business putting a dialog on screen.
+    /// </summary>
+    private RebootPlan DecideReboot(bool installerRequestedReboot, bool clean)
+    {
+        bool pending;
+        try { pending = RebootProbe.IsRebootPending(); }
+        catch (Exception ex) { Log.Warn("Reboot probe failed: " + ex.Message); pending = false; }
+
+        var plan = RebootDecision.Decide(_settings.Current.RebootPolicy, pending,
+                                         installerRequestedReboot, clean);
+
+        if (plan.Action == RebootAction.None)
+        {
+            if (pending || installerRequestedReboot)
+                Emit("A restart is pending, and your reboot setting is 'Never reboot' — nothing has been restarted.");
+            return plan;
+        }
+
+        Emit($"A restart is needed: {plan.Reason}.");
+
+        if (plan.Action == RebootAction.Automatic)
+        {
+            Emit($"Restarting in {plan.Delay.TotalMinutes:0} minute(s). Run 'shutdown /a' in a command prompt to cancel.");
+            _activity.Add(ActivityKind.Warning, "Automatic restart scheduled after the run");
+            RebootProbe.Restart(plan.Delay, plan.Reason);
+        }
+
+        return plan;
     }
 
     private async Task TryCreateRestorePointAsync(CancellationToken ct)

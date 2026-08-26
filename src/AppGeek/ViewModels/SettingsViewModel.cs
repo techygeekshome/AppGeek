@@ -15,7 +15,7 @@ public sealed class SettingsViewModel : ObservableObject
         _shell = shell;
         _s = shell.Settings.Current;
 
-        SaveCommand = new RelayCommand(Save);
+        SaveCommand = new AsyncRelayCommand(SaveAsync);
         RemoveExclusionCommand = new RelayCommand(p => RemoveExclusion(p as ExclusionRule));
         OpenLogFolderCommand = new RelayCommand(OpenLogFolder);
         ExportDiagnosticsCommand = new AsyncRelayCommand(ExportDiagnosticsAsync);
@@ -24,7 +24,7 @@ public sealed class SettingsViewModel : ObservableObject
         RefreshExclusions();
     }
 
-    public RelayCommand SaveCommand { get; }
+    public AsyncRelayCommand SaveCommand { get; }
     public RelayCommand RemoveExclusionCommand { get; }
     public RelayCommand OpenLogFolderCommand { get; }
     public AsyncRelayCommand ExportDiagnosticsCommand { get; }
@@ -33,7 +33,11 @@ public sealed class SettingsViewModel : ObservableObject
     public ObservableCollection<ExclusionRule> Exclusions { get; } = new();
 
     // ---- Scanning ----
-    public bool AutoScan { get => _s.AutoScan; set { _s.AutoScan = value; Raise(); } }
+    public bool AutoScan
+    {
+        get => _s.AutoScan;
+        set { _s.AutoScan = value; Raise(); Raise(nameof(SchedulePreview)); }
+    }
     public bool NotifyOnUpdates { get => _s.NotifyOnUpdates; set { _s.NotifyOnUpdates = value; Raise(); } }
     public bool IncludeStoreApps { get => _s.IncludeStoreApps; set { _s.IncludeStoreApps = value; Raise(); } }
     public bool IncludeUnknownVersions { get => _s.IncludeUnknownVersions; set { _s.IncludeUnknownVersions = value; Raise(); } }
@@ -41,7 +45,28 @@ public sealed class SettingsViewModel : ObservableObject
     public List<string> ScheduleOptions { get; } = new()
     { "Daily at 03:00", "Daily at 12:00", "Weekly on Sunday", "Every time AppGeek starts", "Manually only" };
 
-    public string ScanSchedule { get => _s.ScanSchedule; set { _s.ScanSchedule = value; Raise(); } }
+    public string ScanSchedule
+    {
+        get => _s.ScanSchedule;
+        set { _s.ScanSchedule = value; Raise(); Raise(nameof(SchedulePreview)); }
+    }
+
+    /// <summary>What the chosen option actually means, spelled out under the dropdown.</summary>
+    public string SchedulePreview
+    {
+        get
+        {
+            if (!_s.AutoScan) return "Automatic scanning is off.";
+            var plan = Services.ScanSchedule.Parse(_s.ScanSchedule);
+            return plan.NeedsScheduledTask
+                ? plan.Describe() + " — registered with Windows Task Scheduler as \"" +
+                  Services.ScanSchedule.TaskName + "\". It only scans; it never installs."
+                : plan.Describe() + ".";
+        }
+    }
+
+    private string _scheduleStatus = "";
+    public string ScheduleStatus => _scheduleStatus;
 
     // ---- Sources ----
     public bool UseWinget { get => _s.UseWinget; set { _s.UseWinget = value; Raise(); } }
@@ -120,11 +145,27 @@ public sealed class SettingsViewModel : ObservableObject
     public string ExclusionSummary =>
         Exclusions.Count == 0 ? "No rules" : $"{Exclusions.Count} rule{(Exclusions.Count == 1 ? "" : "s")}";
 
-    private void Save()
+    /// <summary>
+    /// Saves, then brings the Windows scheduled task into line with what was just saved.
+    /// Doing it here rather than on every keystroke means one schtasks call per Save, and it
+    /// keeps the task and the settings file from drifting apart.
+    /// </summary>
+    private async Task SaveAsync()
     {
         _shell.Settings.Save();
-        System.Windows.MessageBox.Show("Settings saved.", "AppGeek",
-            System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+
+        var outcome = await ScheduledScanService.ApplyAsync(_s).ConfigureAwait(true);
+        _scheduleStatus = outcome.Ok
+            ? "Background scan: " + outcome.Message
+            : "Background scan could not be scheduled — " + outcome.Message;
+        Raise(nameof(ScheduleStatus));
+
+        System.Windows.MessageBox.Show(
+            outcome.Ok
+                ? "Settings saved.\n\n" + _scheduleStatus
+                : "Settings saved, but the background scan could not be scheduled.\n\n" + outcome.Message,
+            "AppGeek", System.Windows.MessageBoxButton.OK,
+            outcome.Ok ? System.Windows.MessageBoxImage.Information : System.Windows.MessageBoxImage.Warning);
     }
 
     private void RemoveExclusion(ExclusionRule? rule)

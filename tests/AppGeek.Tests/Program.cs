@@ -14,5 +14,7 @@ WingetVersionTests.Run();
 ProgressTests.Run();
 SecurityTests.Run();
 RegistryTextTests.Run();
+ScheduleTests.Run();
+PolicyTests.Run();
 
 return Check.Report();
