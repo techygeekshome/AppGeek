@@ -79,6 +79,8 @@
                                         <TextBlock Text="Schedule" Style="{StaticResource SettingTitle}" />
                                         <TextBlock Style="{StaticResource SettingDetail}"
                                                    Text="How often the background scan runs." />
+                                        <TextBlock Style="{StaticResource SettingDetail}" Margin="0,4,0,0"
+                                                   Text="{Binding SchedulePreview}" TextWrapping="Wrap" />
                                     </StackPanel>
                                     <ComboBox HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="190"
                                               ItemsSource="{Binding ScheduleOptions}"

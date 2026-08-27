@@ -43,7 +43,9 @@ The installer puts AppGeek in Program Files and registers an uninstall entry lik
 - 📦 **Installs from a catalogue** of 67 common applications, sorted by category, each verified against the live winget repository.
 - 📌 **Pins versions that must not move.** Every IT person has a line-of-business app that breaks on a newer runtime. Right-click, pin, and it is never offered again.
 - 🔴 **Flags security-relevant updates** — browsers, PDF readers, Java and the like are marked so an out-of-date browser reads as more urgent than an out-of-date archiver.
-- 🚦 **Tells you when an app is open** rather than failing halfway through with a hex code.
+- 🚦 **Tells you when an app is open** rather than failing halfway through with a hex code — and can skip it, or ask it to close first, whichever you prefer.
+- ⏰ **Scans on a schedule you choose** — daily, weekly, at startup, or never. A background scan finds what is available and tells you; it never installs anything.
+- 🔁 **Handles restarts honestly.** When an installer needs one, AppGeek says so and asks. Set it to restart automatically if you want that, and it still refuses to do so after a run that went wrong.
 - 💾 **Optional restore point** before a run, and an optional shutdown after it.
 - 📄 **Exports a full report** of everything installed as CSV or HTML — handy for an audit or a rebuild.
 - 🔒 **Private.** No telemetry, no account, no data leaves your machine.
@@ -61,6 +63,10 @@ An app that runs installers with administrator rights has to be careful in ways 
 **It never moves an application you already have.** Running elevated, winget defaults to the machine-wide installer. Point that at an app that was installed per-user and it does not upgrade it — it installs a second copy elsewhere and strands the original, leaving dead shortcuts and an app that will not start. AppGeek reads how each application is actually installed and pins winget to that scope. If no installer exists at the right scope, it refuses and says so.
 
 **It never kills an installer.** Stopping a run prevents the *next* package from starting; it cannot interrupt the one in flight. There is no timeout that kills either. A long install is slow, not broken, and half-installed software does far more damage than waiting does.
+
+**It never kills your applications either.** Set "when an app is running" to *Always close* and AppGeek asks the app to close, exactly as clicking its X would — so it can still prompt you about unsaved work. If it is still open twenty seconds later, AppGeek skips that update and tells you. Nothing in AppGeek force-terminates anything.
+
+**It never restarts your PC quietly.** A restart is only ever proposed when Windows or an installer has actually asked for one. *Prompt at the end* is the default. Even on *Restart automatically* there is a two-minute countdown you can cancel with `shutdown /a`, and a run that failed or was stopped downgrades itself to a prompt rather than restarting on top of a half-finished job.
 
 **It refuses an uncertain match.** Whatever package ID gets attached to an installed application is what gets handed to `winget upgrade`. Bind the wrong one and it cheerfully installs unrelated software over something that was working. Matching demands an exact name, or a winget-truncated name with a long surviving prefix, with versions corroborating. An unmatched app is a far better outcome than a wrongly matched one.
 

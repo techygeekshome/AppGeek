@@ -28,6 +28,10 @@ public partial class AboutWindow : Window
         LicenceLinkText.Tag = AppInfo.LicenceUrl;
         CreditsList.ItemsSource = AppInfo.Credits;
 
+        // AppGeek filters itself out, so the list never advertises the app you are already in.
+        FamilyList.ItemsSource = Family.Others("AppGeek");
+        FamilyHubLink.Tag = Family.HubUrl;
+
         WebsiteButton.Click += (_, _) => AppInfo.OpenUrl(AppInfo.WebsiteUrl);
         ProductButton.Click += (_, _) => AppInfo.OpenUrl(AppInfo.ProductUrl);
         SourceButton.Click += (_, _) => AppInfo.OpenUrl(AppInfo.SourceUrl);

@@ -25,6 +25,10 @@
   <ItemGroup>
     <Compile Include="..\..\src\AppGeek\Models\InstalledApp.cs"     Link="Linked\InstalledApp.cs" />
     <Compile Include="..\..\src\AppGeek\Services\AppPaths.cs"       Link="Linked\AppPaths.cs" />
+    <Compile Include="..\..\src\AppGeek\Models\AppSettings.cs"      Link="Linked\AppSettings.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\RebootDecision.cs"  Link="Linked\RebootDecision.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\RunningAppGate.cs"  Link="Linked\RunningAppGate.cs" />
+    <Compile Include="..\..\src\AppGeek\Services\ScanSchedule.cs"    Link="Linked\ScanSchedule.cs" />
     <Compile Include="..\..\src\AppGeek\Services\IconFactory.cs"    Link="Linked\IconFactory.cs" />
     <Compile Include="..\..\src\AppGeek\Services\InstallScopePolicy.cs" Link="Linked\InstallScopePolicy.cs" />
     <Compile Include="..\..\src\AppGeek\Services\Log.cs"            Link="Linked\Log.cs" />

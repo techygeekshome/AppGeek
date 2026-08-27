@@ -120,10 +120,41 @@ public sealed class RunViewModel : ObservableObject
 
         if (ShutdownWhenDone && summary.Failed == 0 && !summary.Cancelled)
         {
+            // "Shut down when done" and an automatic restart would fight each other, and the
+            // restart was scheduled first by the runner. The user's explicit tick for this
+            // run beats the standing setting, so cancel the restart and shut down instead.
+            if (summary.Reboot.Action == RebootAction.Automatic) RebootProbe.Abort();
+
             Log.Info("Shutdown requested after run.");
             try { Process.Start(new ProcessStartInfo("shutdown", "/s /t 60") { CreateNoWindow = true, UseShellExecute = false }); }
             catch (Exception ex) { Log.Warn("Shutdown could not be scheduled: " + ex.Message); }
+            return;
         }
+
+        if (summary.Reboot.Action == RebootAction.Prompt) OfferRestart(summary.Reboot);
+    }
+
+    /// <summary>
+    /// The one place AppGeek asks about restarting. The runner decides whether a restart is
+    /// warranted; putting a dialog on screen is the UI's job, not a service's.
+    /// </summary>
+    private void OfferRestart(RebootPlan plan)
+    {
+        var answer = MessageBox.Show(
+            $"This PC needs restarting to finish — {plan.Reason}.\n\n" +
+            "Restart now? Nothing else will be installed either way.",
+            "Restart needed", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+        if (answer != MessageBoxResult.Yes)
+        {
+            _shell.Activity.Add(ActivityKind.Warning, "A restart is still pending");
+            Log.Info("Restart offered and declined.");
+            return;
+        }
+
+        // A minute, not instantly. Somebody who clicks Yes with an unsaved document open
+        // still gets a chance to run 'shutdown /a'.
+        RebootProbe.Restart(TimeSpan.FromMinutes(1), plan.Reason);
     }
 
     private void RaiseProgress()
