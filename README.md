@@ -40,7 +40,7 @@ The installer puts AppGeek in Program Files and registers an uninstall entry lik
 
 - 🔍 **Finds every update in one scan.** Reads the installed-programs registry and the Store package list, matches them against winget, and shows you what is out of date.
 - ✅ **Updates only what you tick.** Nothing installs itself, ever. Scheduled scans can find and notify; installing is always a deliberate click.
-- 📦 **Installs from a catalogue** of 67 common applications, sorted by category, each verified against the live winget repository.
+- 📦 **Installs from a catalogue** of 254 common applications across 15 categories, every package ID verified against winget's own index. The list is fetched from this repository at runtime, so it grows without you reinstalling anything.
 - 📌 **Pins versions that must not move.** Every IT person has a line-of-business app that breaks on a newer runtime. Right-click, pin, and it is never offered again.
 - 🔴 **Flags security-relevant updates** — browsers, PDF readers, Java and the like are marked so an out-of-date browser reads as more urgent than an out-of-date archiver.
 - 🚦 **Tells you when an app is open** rather than failing halfway through with a hex code — and can skip it, or ask it to close first, whichever you prefer.
