@@ -16,5 +16,6 @@ SecurityTests.Run();
 RegistryTextTests.Run();
 ScheduleTests.Run();
 PolicyTests.Run();
+Winget129Tests.Run();
 
 return Check.Report();

@@ -78,47 +78,94 @@ public static partial class WingetText
             .Select(l => Clean(l.Contains('\r') ? l.Split('\r').Last() : l))
             .ToList();
 
-        // Locate the dashed separator that sits directly under the header row.
-        int sepIndex = -1;
-        for (int i = 0; i < lines.Count; i++)
+        // winget emits more than one table. "winget upgrade" prints the ordinary upgrades,
+        // then a second table under "The following packages have an upgrade available, but
+        // require explicit targeting for upgrade:". Reading only the first one silently
+        // hides those packages - which is exactly what happened to 64Gram Desktop: winget
+        // said "3 upgrades available", AppGeek offered two.
+        //
+        // Those packages are safe for AppGeek to offer, because explicit targeting is all
+        // it ever does: every call goes out as --id "<id>" --exact.
+        int cursor = 0;
+        while (cursor < lines.Count)
         {
-            var t = lines[i].Trim();
-            if (t.Length >= 10 && t.All(c => c == '-')) { sepIndex = i; break; }
-        }
-        if (sepIndex <= 0) return rows;
+            var sepIndex = IndexOfSeparator(lines, cursor);
+            if (sepIndex <= 0) break;
 
-        // The header is the nearest non-empty line above the separator.
-        int headerIndex = -1;
-        for (int i = sepIndex - 1; i >= 0; i--)
-        {
-            if (!string.IsNullOrWhiteSpace(lines[i])) { headerIndex = i; break; }
-        }
-        if (headerIndex < 0) return rows;
-
-        var columns = ReadColumns(lines[headerIndex]);
-        if (columns.Count < 2) return rows;
-
-        for (int i = sepIndex + 1; i < lines.Count; i++)
-        {
-            var line = lines[i];
-            if (string.IsNullOrWhiteSpace(line)) break;          // table ended
-            if (line.Trim().All(c => c == '-')) break;           // a second table started
-
-            var row = new WingetRow { Columns = columns };
-            for (int c = 0; c < columns.Count; c++)
+            // The header is the nearest non-empty line above the separator.
+            int headerIndex = -1;
+            for (int i = sepIndex - 1; i >= 0; i--)
             {
-                int start = columns[c].Start;
-                int end = c + 1 < columns.Count ? columns[c + 1].Start : line.Length;
-                row.Values[c] = Slice(line, start, end);
+                if (!string.IsNullOrWhiteSpace(lines[i])) { headerIndex = i; break; }
             }
 
-            // A data row always has something in the name column.
-            if (string.IsNullOrWhiteSpace(row.Get(WingetColumn.Name))) continue;
-            rows.Add(row);
+            if (headerIndex < 0) { cursor = sepIndex + 1; continue; }
+
+            var columns = ReadColumns(lines[headerIndex]);
+            if (columns.Count < 2) { cursor = sepIndex + 1; continue; }
+
+            int i2 = sepIndex + 1;
+            for (; i2 < lines.Count; i2++)
+            {
+                var line = lines[i2];
+                if (string.IsNullOrWhiteSpace(line)) break;          // table ended
+                if (IsSeparator(line)) break;                        // the next table started
+
+                var row = new WingetRow { Columns = columns };
+                for (int c = 0; c < columns.Count; c++)
+                {
+                    int start = columns[c].Start;
+                    int end = c + 1 < columns.Count ? columns[c + 1].Start : line.Length;
+                    // The "> " winget puts in front of some versions is deliberately left
+                    // alone. It means winget could not pin the installed version down, and
+                    // PackageMatcher relies on spotting it: an indefinite version is treated
+                    // as "nothing to compare", so the match is kept rather than thrown away.
+                    // Stripping it here turned it into a definite version that then
+                    // disagreed with the registry, and silently lost the match.
+                    row.Values[c] = Slice(line, start, end);
+                }
+
+                if (!IsDataRow(row)) continue;
+                rows.Add(row);
+            }
+
+            cursor = i2 + 1;
         }
 
         return rows;
     }
+
+    private static bool IsSeparator(string line)
+    {
+        var t = line.Trim();
+        return t.Length >= 10 && t.All(c => c == '-');
+    }
+
+    private static int IndexOfSeparator(List<string> lines, int from)
+    {
+        for (int i = from; i < lines.Count; i++)
+            if (IsSeparator(lines[i])) return i;
+        return -1;
+    }
+
+    /// <summary>
+    /// A real row names something and says at least one other thing about it. This rejects
+    /// the summary line winget prints straight after the rows - "3 upgrades available." -
+    /// which otherwise parses as an application called "3 upgrades available.".
+    /// </summary>
+    private static bool IsDataRow(WingetRow row)
+    {
+        if (string.IsNullOrWhiteSpace(row.Get(WingetColumn.Name))) return false;
+
+        for (int i = 0; i < row.Columns.Count; i++)
+        {
+            if (row.Columns[i].Role == WingetColumn.Name) continue;
+            if (row.Values.TryGetValue(i, out var v) && !string.IsNullOrWhiteSpace(v)) return true;
+        }
+
+        return false;
+    }
+
 
     private static string Slice(string line, int start, int end)
     {
@@ -126,6 +173,52 @@ public static partial class WingetText
         end = Math.Min(end, line.Length);
         if (end <= start) return "";
         return line[start..end].Trim();
+    }
+
+    private static readonly string[] KnownHeadings =
+        { "Name", "Id", "Version", "Available", "Source", "Match" };
+
+    /// <summary>
+    /// Recovers a column that the two-space rule merged into its neighbour.
+    ///
+    /// winget does not always leave two spaces between headings. On winget 1.29 the list
+    /// header ends "...Available Source" with a SINGLE space, so the splitter produced one
+    /// column called "Available Source". That title matches no known heading, so it fell
+    /// through to the positional fallback, was labelled Available, and Source ceased to
+    /// exist - taking the source of every installed app with it, and leaving the available
+    /// version reading "1.2.7     winget", which no version comparison can make sense of.
+    ///
+    /// Only an exact trailing English heading is split off, so a translated two-word heading
+    /// is left alone.
+    /// </summary>
+    private static List<ColumnSpec> SplitSingleSpacedHeadings(List<ColumnSpec> specs)
+    {
+        var result = new List<ColumnSpec>();
+
+        foreach (var spec in specs)
+        {
+            var title = spec.Title;
+            var start = spec.Start;
+            var pending = new List<ColumnSpec>();
+
+            // Work from the right: "Version Available Source" splits twice.
+            while (true)
+            {
+                var space = title.LastIndexOf(' ');
+                if (space <= 0) break;
+
+                var tail = title[(space + 1)..];
+                if (!KnownHeadings.Contains(tail, StringComparer.OrdinalIgnoreCase)) break;
+
+                pending.Insert(0, new ColumnSpec(tail, start + space + 1));
+                title = title[..space].TrimEnd();
+            }
+
+            result.Add(new ColumnSpec(title, start));
+            result.AddRange(pending);
+        }
+
+        return result;
     }
 
     private static List<ColumnSpec> ReadColumns(string header)
@@ -144,6 +237,8 @@ public static partial class WingetText
             specs.Add(new ColumnSpec(header[start..end].Trim(), start));
             pos = gap.Success ? gap.Index + gap.Length : header.Length;
         }
+
+        specs = SplitSingleSpacedHeadings(specs);
 
         // Assign semantic roles: by known English title first, else by position.
         for (int i = 0; i < specs.Count; i++)
