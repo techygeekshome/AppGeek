@@ -72,7 +72,6 @@ public sealed class SettingsViewModel : ObservableObject
     public bool UseWinget { get => _s.UseWinget; set { _s.UseWinget = value; Raise(); } }
     public bool UseMicrosoftStore { get => _s.UseMicrosoftStore; set { _s.UseMicrosoftStore = value; Raise(); } }
     public bool UseTghCatalogue { get => _s.UseTghCatalogue; set { _s.UseTghCatalogue = value; Raise(); } }
-    public bool UseChocolatey { get => _s.UseChocolatey; set { _s.UseChocolatey = value; Raise(); } }
     public string CatalogueUrl { get => _s.CatalogueUrl; set { _s.CatalogueUrl = value; Raise(); } }
 
     public string WingetStatus => _shell.Winget.IsAvailable
