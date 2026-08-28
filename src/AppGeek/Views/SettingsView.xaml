@@ -160,7 +160,7 @@
                                 </Grid>
                             </Border>
 
-                            <Border Style="{StaticResource SettingRow}">
+                            <Border Style="{StaticResource SettingRow}" BorderThickness="0">
                                 <Grid>
                                     <StackPanel>
                                         <TextBlock Text="TechyGeeksHome catalogue" Style="{StaticResource SettingTitle}" />
@@ -176,18 +176,6 @@
                                     </StackPanel>
                                     <ToggleButton Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Right"
                                                   VerticalAlignment="Top" IsChecked="{Binding UseTghCatalogue}" />
-                                </Grid>
-                            </Border>
-
-                            <Border Style="{StaticResource SettingRow}" BorderThickness="0">
-                                <Grid>
-                                    <StackPanel>
-                                        <TextBlock Text="Chocolatey" Style="{StaticResource SettingTitle}" />
-                                        <TextBlock Style="{StaticResource SettingDetail}"
-                                                   Text="Optional fallback, used only if Chocolatey is already installed on this PC." />
-                                    </StackPanel>
-                                    <ToggleButton Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Right"
-                                                  VerticalAlignment="Center" IsChecked="{Binding UseChocolatey}" />
                                 </Grid>
                             </Border>
                         </StackPanel>
