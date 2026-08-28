@@ -33,7 +33,6 @@ public sealed class AppSettings
     [JsonPropertyName("useWinget")] public bool UseWinget { get; set; } = true;
     [JsonPropertyName("useMicrosoftStore")] public bool UseMicrosoftStore { get; set; } = true;
     [JsonPropertyName("useTghCatalogue")] public bool UseTghCatalogue { get; set; } = true;
-    [JsonPropertyName("useChocolatey")] public bool UseChocolatey { get; set; }
     /// <summary>
     /// Optional. The catalogue is embedded in the exe and works offline; this is only
     /// where a newer copy is fetched from, so the app list can change without shipping a
