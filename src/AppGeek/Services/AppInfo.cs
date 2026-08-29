@@ -49,12 +49,6 @@ public static class AppInfo
     /// <summary>The standard donation link for the whole range.</summary>
     public const string DonateUrl = "https://ko-fi.com/techygeekshome";
 
-    public static readonly Credit[] Credits =
-    {
-        new(".NET 8 and WPF", "MIT", "https://dotnet.microsoft.com/"),
-        new("Windows Package Manager (winget)", "MIT", "https://github.com/microsoft/winget-cli")
-    };
-
     public static readonly Credit Licence = new(LicenceName, "GPL-3.0", LicenceUrl);
 
     /// <summary>Read from the assembly, so it always matches the binary that shipped.</summary>
