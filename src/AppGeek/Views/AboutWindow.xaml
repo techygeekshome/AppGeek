@@ -118,50 +118,45 @@
                 </Border>
 
                 <!-- The rest of the range. Data comes from Services/Family.cs, not from
-                     this markup, so adding a tool is one edit rather than one per app. -->
+                     this markup, so adding a tool is one edit rather than one per app. One
+                     button per app, two to a row; the code-behind adds the GitHub profile as
+                     an extra tile when the count is odd, so the grid always squares off, and
+                     hides the full-width button below when it has. -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel Margin="15">
                         <TextBlock Text="More from TechyGeeksHome" FontWeight="Bold"
                                    FontSize="12.5" Margin="0,0,0,9" />
-                        <ItemsControl x:Name="FamilyList">
+
+                        <!-- The negative margin cancels the tiles' own 4px gutter at the outer
+                             edges, so the grid lines up with the card above it. -->
+                        <ItemsControl x:Name="FamilyList" Margin="-4,0,-4,6">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Margin="0,0,0,9" Cursor="Hand"
-                                                Background="Transparent"
-                                                Tag="{Binding ProductUrl}"
-                                                MouseLeftButtonUp="Credit_Click">
-                                        <TextBlock Text="{Binding Name, Mode=OneWay}"
-                                                   Foreground="#FF38BDF8" FontSize="12.5"
-                                                   FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Blurb, Mode=OneWay}"
-                                                   Foreground="{StaticResource Txt3}"
-                                                   FontSize="11.5" TextWrapping="Wrap"
-                                                   Margin="0,1,0,0" LineHeight="16" />
-                                    </StackPanel>
+                                    <Button Style="{StaticResource AboutLink}"
+                                            Content="{Binding Name, Mode=OneWay}"
+                                            Tag="{Binding Url, Mode=OneWay}"
+                                            Click="FamilyTile_Click" Margin="4" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
+                        <Button x:Name="GitHubProfileButton" Content="All our code on GitHub"
+                                Foreground="White" FontWeight="SemiBold" FontSize="13.5"
+                                Background="#FF38BDF8" BorderBrush="#FF38BDF8"
+                                Padding="14,12" Margin="0,2,0,0"
+                                HorizontalAlignment="Stretch" />
+
                         <TextBlock x:Name="FamilyHubLink" Style="{StaticResource CreditLink}"
                                    Text="See all the free tools"
-                                   MouseLeftButtonUp="Credit_Click" Margin="0,2,0,0" />
+                                   MouseLeftButtonUp="Credit_Click" Margin="0,10,0,0"
+                                   HorizontalAlignment="Center" />
                     </StackPanel>
                 </Border>
-
-                <!-- Credits -->
-                <TextBlock Text="Built with" FontWeight="Bold" FontSize="12.5" Margin="2,0,0,8" />
-                <ItemsControl x:Name="CreditsList" Margin="2,0,0,0">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Style="{StaticResource CreditLink}"
-                                       Tag="{Binding Url}"
-                                       MouseLeftButtonUp="Credit_Click">
-                                <Run Text="{Binding Name, Mode=OneWay}" />
-                                <Run Text=" — " />
-                                <Run Text="{Binding Licence, Mode=OneWay}" />
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
 
             </StackPanel>
         </ScrollViewer>

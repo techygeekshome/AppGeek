@@ -10,11 +10,19 @@ namespace AppGeek.Views;
 ///
 /// The shared TechyGeeksHome.Common version in the PDFGeek repo is Avalonia-only, so it
 /// cannot be referenced from a WPF app. What is matched here is the design, not the code:
-/// same layout, same four link buttons, same Ko-fi button, same credits list, same inline
-/// update check.
+/// same layout, same four link buttons, same Ko-fi button, same grid of the rest of the
+/// range, same inline update check.
 /// </summary>
 public partial class AboutWindow : Window
 {
+    /// <summary>
+    /// The organisation page. It doubles as a filler tile so the range grid is always even.
+    /// </summary>
+    private const string GitHubProfileUrl = "https://github.com/techygeekshome";
+
+    /// <summary>One tile in the range grid: a name, and where the name goes.</summary>
+    private sealed record FamilyTile(string Name, string Url);
+
     public AboutWindow()
     {
         InitializeComponent();
@@ -26,10 +34,9 @@ public partial class AboutWindow : Window
         LicenceNoticeText.Text = AppInfo.LicenceNotice;
         LicenceLinkText.Text = AppInfo.LicenceName;
         LicenceLinkText.Tag = AppInfo.LicenceUrl;
-        CreditsList.ItemsSource = AppInfo.Credits;
 
-        // AppGeek filters itself out, so the list never advertises the app you are already in.
-        FamilyList.ItemsSource = Family.Others("AppGeek");
+        BuildFamilyGrid();
+        GitHubProfileButton.Click += (_, _) => AppInfo.OpenUrl(GitHubProfileUrl);
         FamilyHubLink.Tag = Family.HubUrl;
 
         WebsiteButton.Click += (_, _) => AppInfo.OpenUrl(AppInfo.WebsiteUrl);
@@ -42,6 +49,36 @@ public partial class AboutWindow : Window
         CheckUpdatesButton.Click += CheckUpdates_Click;
 
         SourceInitialized += (_, _) => WindowTheme.ApplyDarkTitleBar(this);
+    }
+
+    /// <summary>
+    /// Fills the two-column grid with one button per app, AppGeek filtered out so the list
+    /// never advertises the app you are already in. Each button opens that app's page on the
+    /// website rather than its repository - a visitor wants the product, not the source.
+    ///
+    /// An odd number of apps would leave a hole in the second column, so the GitHub profile
+    /// goes in as an extra tile and the full-width button below is hidden. With an even
+    /// number the grid is already square and that button stays.
+    /// </summary>
+    private void BuildFamilyGrid()
+    {
+        var tiles = Family.Others("AppGeek")
+                          .Select(a => new FamilyTile(a.Name, a.ProductUrl))
+                          .ToList();
+
+        if (tiles.Count % 2 == 1)
+        {
+            tiles.Add(new FamilyTile("All our code on GitHub", GitHubProfileUrl));
+            GitHubProfileButton.Visibility = Visibility.Collapsed;
+        }
+
+        FamilyList.ItemsSource = tiles;
+    }
+
+    private void FamilyTile_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: string url } && !string.IsNullOrWhiteSpace(url))
+            AppInfo.OpenUrl(url);
     }
 
     private void Credit_Click(object sender, MouseButtonEventArgs e)
