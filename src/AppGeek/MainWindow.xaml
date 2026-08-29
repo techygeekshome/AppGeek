@@ -72,18 +72,6 @@
                                    Foreground="{StaticResource Amber}" HorizontalAlignment="Center" />
                     </Border>
 
-                    <!-- The claim that matters most to people installing a tool like this -->
-                    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}"
-                            BorderThickness="1" CornerRadius="8" Padding="12,11" Margin="0,0,0,12">
-                        <StackPanel>
-                            <TextBlock Text="Nothing leaves this PC" FontSize="12"
-                                       FontWeight="SemiBold" Foreground="{StaticResource BlueLight}" />
-                            <TextBlock Foreground="{StaticResource Txt3}" FontSize="11"
-                                       TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="15"
-                                       Text="The scan runs locally. No accounts, no telemetry, no inventory uploaded anywhere." />
-                        </StackPanel>
-                    </Border>
-
                     <Button Content="Check for updates" Command="{Binding CheckForUpdatesCommand}"
                             HorizontalAlignment="Stretch" Padding="12,9" Margin="0,0,0,7" />
                     <Button Content="{Binding AboutButtonLabel}" Command="{Binding ShowAboutCommand}"

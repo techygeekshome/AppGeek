@@ -12,7 +12,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>AppGeek</AssemblyName>
     <RootNamespace>AppGeek</RootNamespace>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <Company>TechyGeeksHome</Company>
     <Product>AppGeek</Product>
     <Description>Scan, update and install Windows applications. Part of the TechyGeeksHome Geek series.</Description>
