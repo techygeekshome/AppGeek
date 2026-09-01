@@ -27,6 +27,19 @@
 #define AppUpdatesURL  "https://github.com/techygeekshome/AppGeek/releases"
 #define AppExeName     "AppGeek.exe"
 
+#define FirstYear      "2026"
+#define CurrentYear    GetDateTimeString('yyyy','','')
+
+; From 2027 onward show a range rather than only the current year, so the copyright reads
+; 2026-2027 and so on without anyone having to remember to edit it.
+#if CurrentYear == FirstYear
+  #define CopyrightYears FirstYear
+#else
+  #define CopyrightYears FirstYear + "-" + CurrentYear
+#endif
+
+#include "AppGeek_languages.iss"
+
 [Setup]
 ; Unique to AppGeek. Do NOT regenerate this for future versions - Windows uses it to
 ; recognise "this is an upgrade of the same app" rather than a second, separate install.
@@ -41,6 +54,7 @@ AppUpdatesURL={#AppUpdatesURL}
 VersionInfoVersion={#AppVersion}
 VersionInfoCompany={#AppPublisher}
 VersionInfoDescription={#AppName} Setup
+AppCopyright={#CopyrightYears} {#AppPublisher}
 
 DefaultDirName={autopf}\{#AppPublisher}\{#AppName}
 DefaultGroupName={#AppName}
@@ -65,11 +79,16 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 
-[Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
+
+; With more than one language available the wizard has to ask, and it has to ask every time
+; rather than silently reusing whatever was picked last time on a shared machine. Detection
+; starts from the Windows UI language, so most people never think about it.
+ShowLanguageDialog=yes
+UsePreviousLanguage=no
+LanguageDetectionMethod=uilanguage
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Shortcuts:"
+Name: "desktopicon"; Description: "{cm:CreateDesktopShortcut}"; GroupDescription: "{cm:Shortcuts}"
 
 [Files]
 Source: "..\publish\standalone\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
@@ -78,7 +97,7 @@ Source: "..\README.md"; DestDir: "{app}"; DestName: "README.md";   Flags: ignore
 
 [Icons]
 Name: "{group}\{#AppName}";                        Filename: "{app}\{#AppExeName}"
-Name: "{group}\{#AppName} on the web";             Filename: "{#AppURL}"
+Name: "{group}\{cm:AppWebSite}";                   Filename: "{#AppURL}"
 Name: "{group}\{cm:UninstallProgram,{#AppName}}";  Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#AppName}";                  Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 
