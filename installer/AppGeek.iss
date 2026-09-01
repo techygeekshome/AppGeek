@@ -69,8 +69,8 @@ LicenseFile=..\LICENSE
 OutputDir=..\dist
 OutputBaseFilename=AppGeekSetup
 SetupIconFile=..\icons\appgeek.ico
-UninstallDisplayIcon={app}\{#AppExeName}
 UninstallDisplayName={#AppName}
+UninstallDisplayIcon={app}\{#AppExeName}
 
 Compression=lzma2/max
 SolidCompression=yes
