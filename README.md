@@ -24,6 +24,25 @@ It also carries a browsable catalogue of common Windows software — browsers, r
 
 No bundled offers, no telemetry, no account, no Pro tier. It is free for everyone, including at work.
 
+## 📸 Screenshots
+
+<p float="left">
+  <img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-dashboard.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-updates.png" width="49%" />
+</p>
+<p float="left">
+  <img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-installing.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-catalogue.png" width="49%" />
+</p>
+<p float="left">
+  <img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-installed.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-settings.png" width="49%" />
+</p>
+<p float="left">
+  <img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-settings-2.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/techygeekshome/AppGeek/main/screenshots/screenshot-about.png" width="49%" />
+</p>
+
 ## ⬇️ Download & run
 
 | What it is | Get it |
