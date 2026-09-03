@@ -18,6 +18,14 @@
 
 ---
 
+## 🎬 See it in action
+
+[![AppGeek demo video](https://img.youtube.com/vi/hDmh3ida9Po/maxresdefault.jpg)](https://www.youtube.com/watch?v=hDmh3ida9Po)
+
+Every app on the machine updated in one run, in under a minute.
+
+---
+
 Keeping a Windows PC up to date is a chore made of many small chores. Every application has its own updater, its own nag window, its own idea of when to interrupt you. AppGeek does the lot in one pass: it reads everything installed, works out what has a newer version, shows you exactly what would change, and updates the ones you tick.
 
 It also carries a browsable catalogue of common Windows software — browsers, runtimes, media tools, developer tools — so setting up a new machine is a case of ticking a list and walking away.
