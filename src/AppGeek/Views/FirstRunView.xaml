@@ -9,7 +9,7 @@
         <Border DockPanel.Dock="Bottom" Background="{StaticResource Chrome}"
                 BorderBrush="#FF161D2C" BorderThickness="0,1,0,0" Padding="26,12">
             <Grid>
-                <TextBlock Text="Version 1.0.0 · TechyGeeksHome" Foreground="{StaticResource Txt4}"
+                <TextBlock Text="{Binding VersionLine}" Foreground="{StaticResource Txt4}"
                            FontSize="12" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Skip for now" Style="{StaticResource GhostButton}"
