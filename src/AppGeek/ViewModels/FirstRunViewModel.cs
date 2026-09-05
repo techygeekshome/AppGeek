@@ -35,6 +35,13 @@ public sealed class FirstRunViewModel : ObservableObject
 
     public int SelectedCount => StarterPack.Count(a => a.IsSelected);
 
+    /// <summary>
+    /// Read from the assembly rather than written into the view. The footer used to
+    /// carry the version as a literal, so the first thing a new user saw claimed the
+    /// app was several releases behind whatever they had actually installed.
+    /// </summary>
+    public string VersionLine => AppInfo.VersionLine;
+
     public string StartButtonLabel =>
         SelectedCount == 0 ? "Scan this PC" : $"Scan and install {SelectedCount} app{(SelectedCount == 1 ? "" : "s")}";
 
