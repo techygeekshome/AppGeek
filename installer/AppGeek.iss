@@ -65,7 +65,7 @@ AllowNoIcons=yes
 ; AppGeek needs administrator rights to do its job, so it installs machine-wide.
 PrivilegesRequired=admin
 
-LicenseFile=..\LICENSE
+LicenseFile=..\LICENSE.rtf
 OutputDir=..\dist
 OutputBaseFilename=AppGeekSetup
 SetupIconFile=..\icons\appgeek.ico
