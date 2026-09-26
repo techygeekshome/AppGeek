@@ -169,7 +169,7 @@ The AppGeek name, logo and TechyGeeksHome branding are not covered by that licen
 
 **AppGeek is currently unsigned.** Windows SmartScreen will warn on first run. Verify the SHA-256 published with each release rather than disabling the warning.
 
-© 2026 TechyGeeksHome | Andrew Armstrong.
+© 2026 TechyGeeksHome.
 
 ---
 
