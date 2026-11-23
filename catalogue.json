@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-08-27",
+  "updated": "2026-11-22",
   "apps": [
     {
       "id": "chrome",
@@ -2940,6 +2940,21 @@
       "description": "Modern file manager with tabs.",
       "homepage": "https://github.com/files-community/Files",
       "popularity": 34,
+      "essential": false
+    },
+    {
+      "id": "klakk",
+      "name": "Klakk",
+      "publisher": "Klakk",
+      "category": "Utilities",
+      "wingetId": "Klakk.Klakk",
+      "storeId": null,
+      "iconText": "KL",
+      "iconColour": "#2E78D8",
+      "approxSizeMb": 112,
+      "description": "Mechanical keyboard sounds while you type, with 14 sound packs. Three-day trial; US$6.99 once, plus applicable tax.",
+      "homepage": "https://tryklakk.com/en/windows/",
+      "popularity": 0,
       "essential": false
     },
     {
